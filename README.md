@@ -1,17 +1,17 @@
-# When does GPT-2 small learn what, and which heads do the copying
+# GPT-2 small training dynamics
 
-These scripts measure a GPT-2 small (124M) trained from scratch, using 190 saved models (a snapshot every 100 steps, plus the finished model, `last.pt`). They ask every snapshot the same questions, score every attention head for copying, and read what the previous-token head writes and how the induction head uses it.
+These scripts measure when a GPT-2 small (124M), trained from scratch, learns what, and which attention heads do the copying. They use 190 saved models, which are snapshots after step 0, step 50 and every 100 steps from there, plus the finished model (`last.pt`). They ask every snapshot the same questions, score every attention head for copying, and read what the previous-token head writes and how the induction head uses it.
 
 ## What you need first
 
 - The model code (`gpt2.checkpoint`, `gpt2.train.device`, `gpt2.train.shards`) from [the training repo](https://github.com/JohnMachado11/GPT-2), in its `src/gpt2`. Put that `src` folder on `PYTHONPATH`.
-- A run folder with `snapshots/` (the `step_*.pt` files), `last.pt` and `best.pt`. The training repo saves these when you train with snapshots turned on.
-- A data folder written by the training repo's `prepare_data.py` (only its validation shard is used).
+- A run folder with `snapshots/` (the `step_*.pt` files), `last.pt` and `best.pt`. The training repo writes these when `save_snapshots = True` is set in `src/run/settings_gpt2_small.py` and you train with `src/run/train_gpt2.py`.
+- A data folder written by the training repo's `src/run/prepare_data.py`. `probe_snapshots.py` uses its validation shard, and `copying_wiring.py` uses it as real text.
 - Python 3 with `torch`, `numpy` and `transformers`.
 
 ## The order to run them
 
-**Step 1. Measure every snapshot.** These three read all 190 models, so they need a GPU, and I ran them in Colab. They don't depend on each other. Each saves one file in the run folder, and each can be re-run after a disconnect because it skips snapshots it already did.
+**Step 1. Measure every snapshot.** These three read all 190 models, so they need a GPU (they were run on one in Colab). They don't depend on each other. Each saves one file in the run folder, and each can be re-run after a disconnect because it skips snapshots it already did.
 
 | Script | Command | Saves |
 | --- | --- | --- |
@@ -24,7 +24,7 @@ These scripts measure a GPT-2 small (124M) trained from scratch, using 190 saved
 - `knowledge_paths.py` saves the top 10 guesses and their probabilities for every prompt in every snapshot.
 - `subject_order.py` runs on `probes_3.pt` once it exists (`python subject_order.py <run folder>`, no model needed). It prints, for each of the 16 subjects, the arrival step, which is the step by which half of its prompts have had the right token as the top guess at least once.
 
-**Step 2. Look inside the finished model.** These run on one checkpoint, so a laptop CPU is enough.
+**Step 2. Look inside the finished model.** These run on one checkpoint.
 
 | Script | Command | Needs | Saves |
 | --- | --- | --- | --- |
