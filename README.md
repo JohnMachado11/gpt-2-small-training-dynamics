@@ -2,6 +2,8 @@
 
 These scripts measure when a GPT-2 small (124M), trained from scratch, learns what, and which attention heads do the copying. They use 190 saved models, which are snapshots after step 0, step 50 and every 100 steps from there, plus the finished model (`last.pt`). They ask every snapshot the same questions, score every attention head for copying, and read what the previous-token head writes and how the induction head uses it.
 
+The write-up is the blog post [The exact moments GPT-2 small learns](https://johnmachado.dev/blog/what-gpt2-learns/).
+
 ## What you need first
 
 - The model code (`gpt2.checkpoint`, `gpt2.train.device`, `gpt2.train.shards`) from [the training repo](https://github.com/JohnMachado11/GPT-2), in its `src/gpt2`. Put that `src` folder on `PYTHONPATH`.
